@@ -1,0 +1,569 @@
+<html>
+<style>
+/* Search Box */
+body{
+  background-color: rgb(255, 255, 255);
+}
+
+.search-box {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            margin: 0 auto;
+            /* margin-top: -100px; */
+            padding: 40px;
+            border-radius: 25px;
+            width: 90%;
+            max-width: 1200px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideUp 0.8s ease-out;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 1;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+
+        .search-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .search-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background:  #023e1f;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .search-header p {
+            font-size: 1.2rem;
+            color: #666;
+            font-weight: 300;
+        }
+
+
+
+        /* Ingredient Container */
+        .ingredient-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+
+
+
+.left-panel {
+  border-right: 3px solid #768282;
+}
+
+.left-panel,
+.right-panel {
+  flex: 1;
+  padding: 20px;
+}
+
+
+               .left-panel h3, .right-panel h4 {
+            font-size: 1.4rem;
+            color: #2d3748;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .left-panel p {
+            font-size: 1rem;
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .ingredient-input {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .ingredient-input input[type="text"] {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .ingredient-input input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .ingredient-input input[type="text"]::placeholder {
+            color: #a0aec0;
+            font-style: italic;
+        }
+
+
+        .ingredient-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .clear-all {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .clear-all:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: #667eea;
+        }
+
+
+
+
+.ingredient-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.icon {
+  font-size: 25px;
+}
+
+.clear-all {
+  font-size: 15px;
+  color: #2b90e2;
+  text-decoration: none;
+}
+
+.ingredient-tags {
+  margin: 15px 0;
+}
+
+.tag {
+  display: inline-block;
+  border: 2px solid #2c2929;
+  border-radius: 20px;
+  padding: 5px 10px;
+  margin: 5px;
+  font-size: 14px;
+  color: #474141;
+  cursor: pointer;
+}
+
+/* Filter Groups */
+.filter-groups {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #fff 0%, #f8f9ff 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .filter-column {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .filter-column:hover {
+            transform: translateY(-5px);
+        }
+
+        .filter-column h3 {
+            color: #2d3748;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            position: relative;
+        }
+
+        .filter-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 30px;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .filter-column label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            color: #4a5568;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-column label:hover {
+            background: rgba(102, 126, 234, 0.05);
+            color: #667eea;
+        }
+
+        .filter-column input[type="checkbox"] {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+            cursor: pointer;
+        }
+
+        /* Submit Button */
+        .sub-btn {
+             background:   #046244;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+           
+            display: block;
+            margin: 0 auto;
+            min-width: 200px;
+        }
+
+        .sub-btn:hover {
+            transform: translateY(-3px);
+            background:   #046244;
+        }
+
+        .sub-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* Icons */
+        .icon {
+            font-size: 1.5rem;
+            color: #667eea;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            color: #a0aec0;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .search-box {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .search-header h1 {
+                font-size: 2rem;
+            }
+
+            .ingredient-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .filter-groups {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .filter-column {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .search-box {
+                padding: 15px;
+            }
+
+            .search-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .ingredient-container {
+                padding: 15px;
+            }
+
+            .left-panel, .right-panel {
+                padding: 10px;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+</style>
+
+
+
+
+<section class="search-box" id="search">
+  <div class="search-header">
+      <h1>Find Your Perfect Recipe</h1>
+      <p>Tell us what ingredients you have, and we'll find amazing recipes for you!</p>
+  </div>
+
+  <form action="/new-mini-project/search/search.php" method="GET" id="ingredientForm">
+      <div class="ingredient-container">
+          <!-- Left Section -->
+          <div class="left-panel">
+              <h3>
+                  <span class="icon">🛒</span> 
+                  What's in your kitchen?
+              </h3>
+              <p>
+                  Start typing ingredients you want to use up. We need a 
+                  <strong>minimum of 3 ingredients</strong> to find you some delicious recipes.
+              </p>
+              <div class="ingredient-input">
+                  <input type="text" placeholder="Type an ingredient and press Enter..." id="ingredientInput">
+              </div>
+          </div>
+
+          <!-- Right Section -->
+          <div class="right-panel">
+              <div class="ingredient-header">
+                  <h4>
+                      <span class="icon"><i class="fa-regular fa-clipboard"></i></span> 
+                      Your ingredients (<span id="ingredientCount">0</span>)
+                  </h4>
+                  <a href="#" class="clear-all" id="clearAllBtn">
+                      <i class="fas fa-trash-alt"></i> Clear all
+                  </a>
+              </div>
+              <div class="ingredient-tags" id="ingredientTags">
+                  <div class="empty-state">Start adding ingredients above...</div>
+              </div>
+          </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-groups">
+          <div class="filter-column">
+              <h3><i class="fas fa-utensils"></i> Meal Type</h3>
+              <label><input type="checkbox" name="meal[]" value="Breakfast"> Breakfast</label>
+              <label><input type="checkbox" name="meal[]" value="Lunch"> Lunch</label>
+              <label><input type="checkbox" name="meal[]" value="Dinner"> Dinner</label>
+             
+          </div>
+           <div class="filter-column">
+              <h3><i class="fas fa-utensils"></i> Dish Type</h3>
+              <label><input type="checkbox" name="dish[]" value="MainDish"> Main-Dish</label>
+              <label><input type="checkbox" name="dish[]" value="SideDish"> Side-Dish</label>
+              <label><input type="checkbox" name="dish[]" value="Snack"> Snack</label>
+               <label><input type="checkbox" name="dish[]" value="Drink"> Drinks</label>
+              <label><input type="checkbox" name="dish[]" value="Dessert"> Dessert</label>
+          </div>
+
+          <div class="filter-column">
+              <h3><i class="fas fa-leaf"></i> Special Diet</h3>
+              <label><input type="checkbox" name="diet[]" value="Vegetarian"> Vegetarian</label>
+                <label><input type="checkbox" name="diet[]" value="Non-Vegetarian"> Non-Vegetarian</label>
+              <label><input type="checkbox" name="diet[]" value="Eggfree"> Egg-free</label>
+              <label><input type="checkbox" name="diet[]" value="Nutfree"> Nut-free</label>
+              <label><input type="checkbox" name="diet[]" value="Diabetesfriendly"> Diabetes-friendly</label>
+          </div>
+
+          <div class="filter-column">
+              <h3><i class="fas fa-clock"></i> Cooking Time</h3>
+              <label><input type="checkbox" name="time[]" value="15"> Quick (≤15 min)</label>
+              <label><input type="checkbox" name="time[]" value="30"> Medium (≤30 min)</label>
+              <label><input type="checkbox" name="time[]" value="60"> Longer (≤60 min)</label>
+          </div>
+      </div>
+
+      <button class="sub-btn" type="submit" id="submitBtn">
+          <i class="fas fa-search"></i> Find My Recipes
+      </button>
+  </form>
+</section>
+
+
+<script>
+  const form = document.getElementById("ingredientForm");
+  const input = document.getElementById("ingredientInput");
+  const tagsContainer = document.getElementById("ingredientTags");
+  const clearAllBtn = document.getElementById("clearAllBtn");
+  const ingredientCount = document.getElementById("ingredientCount");
+  const submitBtn = document.getElementById("submitBtn");
+  let ingredients = [];
+
+  // Hidden input to submit ingredients
+  const hiddenField = document.createElement("input");
+  hiddenField.type = "hidden";
+  hiddenField.name = "ingredients";
+  form.appendChild(hiddenField);
+
+  function addIngredient(value) {
+      value = value.trim().toLowerCase();
+      if (value && !ingredients.includes(value)) {
+          ingredients.push(value);
+          updateTags();
+          input.value = '';
+          
+          // Add a little animation
+          input.style.transform = 'scale(1.05)';
+          setTimeout(() => {
+              input.style.transform = 'scale(1)';
+          }, 200);
+      }
+  }
+
+  function removeIngredient(value) {
+      ingredients = ingredients.filter(i => i !== value);
+      updateTags();
+  }
+
+  function updateTags() {
+      tagsContainer.innerHTML = '';
+      ingredientCount.textContent = ingredients.length;
+      
+      if (ingredients.length === 0) {
+          tagsContainer.innerHTML = '<div class="empty-state">Start adding ingredients above...</div>';
+      } else {
+          ingredients.forEach(ing => {
+              const span = document.createElement("span");
+              span.className = "tag";
+              span.innerHTML = `${ing} <span class="remove-icon">×</span>`;
+              span.onclick = () => removeIngredient(ing);
+              tagsContainer.appendChild(span);
+          });
+      }
+      
+      hiddenField.value = ingredients.join(",");
+      
+      // Update submit button state
+      if (ingredients.length >= 3) {
+          submitBtn.style.opacity = '1';
+          submitBtn.style.cursor = 'pointer';
+      } else {
+          submitBtn.style.opacity = '0.7';
+          submitBtn.style.cursor = 'not-allowed';
+      }
+  }
+
+  // Input event listeners
+  input.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+          e.preventDefault();
+          if (input.value.trim()) {
+              addIngredient(input.value);
+          }
+      }
+  });
+
+  input.addEventListener("blur", function() {
+      if (input.value.trim()) {
+          addIngredient(input.value);
+      }
+  });
+
+  clearAllBtn.addEventListener("click", e => {
+      e.preventDefault();
+      ingredients = [];
+      updateTags();
+      
+      // Add animation
+      tagsContainer.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+          tagsContainer.style.transform = 'scale(1)';
+      }, 200);
+  });
+
+  form.addEventListener("submit", function (e) {
+      if (ingredients.length < 3) {
+          e.preventDefault();
+          
+          // Show error animation
+          submitBtn.style.background = '#046244';
+          submitBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Need at least 3 ingredients!';
+          
+          setTimeout(() => {
+              submitBtn.style.background = 'linear-gradient(135deg,#046244; 0%, #046244 100%)';
+              submitBtn.innerHTML = '<i class="fas fa-search"></i> Find My Recipes';
+          }, 2000);
+          
+          // Shake animation
+          form.style.animation = 'shake 0.5s ease-in-out';
+          setTimeout(() => {
+              form.style.animation = '';
+          }, 500);
+      } else {
+          // Show loading state
+          submitBtn.innerHTML = '<span class="loading"></span> Searching...';
+          submitBtn.disabled = true;
+      }
+  });
+
+  // Initialize
+  updateTags();
+
+  // Add shake animation
+  const style = document.createElement('style');
+  style.textContent = `
+      @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+      }
+  `;
+  document.head.appendChild(style);
+</script>
+
+</html>

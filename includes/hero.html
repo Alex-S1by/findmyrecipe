@@ -1,0 +1,124 @@
+  
+  
+  
+  
+  
+  
+  
+  <style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f9fafb;
+  color: #1f2937;
+}
+
+.hero-section {
+  padding: 80px 24px;
+}
+
+.hero-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hero-text {
+  max-width: 600px;
+  text-align: center;
+}
+
+.hero-text h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #065f46;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+
+.hero-text .highlight {
+  color: #059669;
+}
+
+.hero-text .subheading {
+  color: #1f2937;
+}
+
+.hero-text p {
+  font-size: 1.125rem;
+  color: #4b5563;
+  margin-bottom: 24px;
+}
+
+.hero-button {
+  display: inline-block;
+  background-color: #059669;
+  color: white;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: background-color 0.3s ease;
+}
+
+.hero-button:hover {
+  background-color: #047857;
+}
+
+.hero-image {
+  width: 100%;
+  max-width: 600px;
+}
+
+.hero-image img {
+  width: 100%;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .hero-container {
+    flex-direction: row;
+  }
+
+  .hero-text {
+    text-align: left;
+  }
+}
+
+
+  </style>
+  
+  
+  
+  <section class="hero-section">
+    <div class="hero-container">
+      <!-- Left: Text -->
+      <div class="hero-text">
+        <h1>
+          Search Recipes by <span class="highlight">Ingredients</span><br>
+          <span class="subheading">Find the perfect dish!</span>
+        </h1>
+        <p>
+          Enter what’s in your kitchen and discover amazing Kerala recipes instantly.
+        </p>
+        <a href="#search" class="hero-button">Try Ingredient Search</a>
+      </div>
+
+      <!-- Right: Image -->
+      <div class="hero-image">
+        <img src="./assets/hero-dish.png" alt="Delicious Kerala Dish">
+      </div>
+    </div>
+  </section>
