@@ -3,12 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Add New Recipe</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -40,42 +37,25 @@
       color: #333;
     }
 
- input[type="text"],
-    textarea {
+    input[type="text"], textarea {
       width: 100%;
-  padding: 14px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: #fefefe;
-  transition: border-color 0.3s;
-  line-height: 1.5;
+      padding: 14px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: #fefefe;
+      transition: border-color 0.3s;
+      line-height: 1.5;
     }
 
+    textarea#description { min-height: 100px; }
+    textarea#ingredients { min-height: 200px; }
+    textarea#steps { min-height: 220px; }
 
-    textarea#description {
-  min-height: 100px;
-}
-
-textarea#ingredients {
-  min-height: 200px;
-}
-
-textarea#steps {
-  min-height: 220px;
-}
-
-    input[type="text"]:focus,
-    textarea:focus {
+    input[type="text"]:focus, textarea:focus {
       border-color: #0077cc;
       outline: none;
     }
-
-    textarea {
-      resize: vertical;
-      min-height: 100px;
-    }
-    
 
     .submit-btn {
       background-color: #e60033;
@@ -92,118 +72,188 @@ textarea#steps {
       transition: background-color 0.3s ease;
     }
 
-    .submit-btn:hover {
-      background-color: #e60042;
+    .submit-btn:hover { background-color: #e60042; }
+
+    .error-msg {
+      color: red;
+      font-size: 0.9rem;
+      margin-top: 5px;
     }
 
-    .msg {
-      text-align: center;
-      font-weight: bold;
-      color: green;
-      margin-top: 20px;
-    }
-
-    @media (max-width: 600px) {
-      .form-container {
-        padding: 20px;
-      }
-    }
     .checkbox-group {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 8px;
-  margin-top: 10px;
-  padding: 8px 0;
-}
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+      padding: 8px 0;
+    }
 
-input[type="file"] {
-  padding: 10px 0;
-}
-
-
+    input[type="file"] { padding: 10px 0; }
 
   </style>
 </head>
 <body>
 
 <div class="form-container">
-
   <button onclick="history.back()" style="
-  background-color: #ccc;
-  color: #333;
-  border: none;
-  padding: 8px 15px;
-  font-size: 0.9rem;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-bottom: 15px;
-  display: inline-block;
-">← Back</button>
-
+    background-color: #ccc; color: #333; border: none;
+    padding: 8px 15px; font-size: 0.9rem; font-weight: bold;
+    border-radius: 6px; cursor: pointer; margin-bottom: 15px;">
+    ← Back
+  </button>
 
   <h2>🍲 Add a New Recipe</h2>
- <form method="POST" action="insert.php" enctype="multipart/form-data">
-  <label for="title">Recipe Title:</label>
-  <input type="text" id="title" name="title" required>
 
-  <label for="description">Description:</label>
-  <textarea id="description" name="description" required></textarea>
+  <form id="recipeForm" method="POST" action="insert.php" enctype="multipart/form-data">
+    <label for="title">Recipe Title:</label>
+    <input type="text" id="title" name="title" required>
+    <div class="error-msg" id="titleError"></div>
 
-  <label for="image_file">Upload Image:</label>
-<input type="file" id="image_file" name="image_file" accept="image/*" required onchange="previewImage(event)">
+    <label for="description">Description:</label>
+    <textarea id="description" name="description" required></textarea>
+    <div class="error-msg" id="descriptionError"></div>
 
-<div id="preview_container" style="display: none; margin-top: 10px;">
-  <img id="image_preview" style="width: 150px; height: auto; border-radius: 8px; border: 1px solid #ccc;">
-  <br>
-  <button type="button" id="remove_image_btn" onclick="removeImage()" style="
-    margin-top: 8px;
-    padding: 5px 10px;
-    background-color: #ff5555;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.9rem;
-  ">Remove Image</button>
+    <label for="image_file">Upload Image:</label>
+    <input type="file" id="image_file" name="image_file" accept="image/*" required onchange="previewImage(event)">
+    <div class="error-msg" id="imageError"></div>
+
+    <div id="preview_container" style="display: none; margin-top: 10px;">
+      <img id="image_preview" style="width: 150px; height: auto; border-radius: 8px; border: 1px solid #ccc;">
+      <br>
+      <button type="button" id="remove_image_btn" onclick="removeImage()" style="
+        margin-top: 8px; padding: 5px 10px; background-color: #ff5555;
+        color: white; border: none; border-radius: 5px; cursor: pointer;
+        font-size: 0.9rem;">Remove Image</button>
+    </div>
+
+    <label>Meal Type:</label>
+    <div class="checkbox-group">
+      <label><input type="checkbox" name="meal[]" value="Breakfast"> Breakfast</label>
+      <label><input type="checkbox" name="meal[]" value="Lunch"> Lunch</label>
+      <label><input type="checkbox" name="meal[]" value="Dinner"> Dinner</label>
+      <label><input type="checkbox" name="meal[]" value="Side-Dish"> Side-Dish</label>
+      <label><input type="checkbox" name="meal[]" value="Snack"> Snack</label>
+    </div>
+    <div class="error-msg" id="mealError"></div>
+
+    <label for="time">Total Time (minutes):</label>
+    <input type="text" id="time" name="time" required placeholder="e.g. 30">
+    <div class="error-msg" id="timeError"></div>
+
+    <label>Special Diet:</label>
+    <div class="checkbox-group">
+      <label><input type="checkbox" name="diet[]" value="Vegetarian"> Vegetarian</label>
+      <label><input type="checkbox" name="diet[]" value="Non-Vegetarian"> Non-Vegetarian</label>
+      <label><input type="checkbox" name="diet[]" value="Egg-free"> Egg-free</label>
+      <label><input type="checkbox" name="diet[]" value="Soy-free"> Soy-free</label>
+      <label><input type="checkbox" name="diet[]" value="Nut-free"> Nut-free</label>
+      <label><input type="checkbox" name="diet[]" value="Diabetes-friendly"> Diabetes-friendly</label>
+    </div>
+
+    <label for="ingredients">Ingredients (one per line):</label>
+    <textarea id="ingredients" name="ingredients" required placeholder="1/2 Kg Beef (Sliced)...&#10;10 Shallots (Kunjulli)..."></textarea>
+    <div class="error-msg" id="ingredientsError"></div>
+
+    <label for="steps">Steps (one per line):</label>
+    <textarea id="steps" name="steps" required placeholder="1. Do this...&#10;2. Do that..."></textarea>
+    <div class="error-msg" id="stepsError"></div>
+
+
+    <label for="video_url">YouTube Video Link (optional):</label>
+<input type="text" id="video_url" name="video_url" placeholder="https://www.youtube.com/watch?v=abcd1234">
+<div class="error-msg" id="videoError"></div>
+
+
+
+
+    <button type="submit" class="submit-btn">Submit Recipe</button>
+  </form>
 </div>
-
-  <label>Meal Type:</label>
-  <div class="checkbox-group">
-    <label><input type="checkbox" name="meal[]" value="Breakfast"> Breakfast</label>
-    <label><input type="checkbox" name="meal[]" value="Lunch"> Lunch</label>
-    <label><input type="checkbox" name="meal[]" value="Dinner"> Dinner</label>
-    <label><input type="checkbox" name="meal[]" value="Side-Dish"> Side-Dish</label>
-    <label><input type="checkbox" name="meal[]" value="Snack"> Snack</label>
-  </div>
-
-  <label for="time">Total Time (minutes):</label>
-  <input type="text" id="time" name="time" required placeholder="e.g. 30">
-
-  <label>Special Diet:</label>
-  <div class="checkbox-group">
-    <label><input type="checkbox" name="diet[]" value="Vegetarian"> Vegetarian</label>
-    <label><input type="checkbox" name="diet[]" value="Non-Vegetarian"> Non-Vegetarian</label>
-    <label><input type="checkbox" name="diet[]" value="Egg-free"> Egg-free</label>
-    <label><input type="checkbox" name="diet[]" value="Soy-free"> Soy-free</label>
-    <label><input type="checkbox" name="diet[]" value="Nut-free"> Nut-free</label>
-    <label><input type="checkbox" name="diet[]" value="Diabetes-friendly"> Diabetes-friendly</label>
-  </div>
-
-  <label for="ingredients">Ingredients (one per line):</label>
-  <textarea id="ingredients" name="ingredients" required placeholder="1/2 Kg Beef (Sliced)...&#10;10 Shallots (Kunjulli)..."></textarea>
-
-  <label for="steps">Steps (one per line):</label>
-  <textarea id="steps" name="steps" required placeholder="1. Do this...&#10;2. Do that..."></textarea>
-
-  <button type="submit" class="submit-btn">Submit Recipe</button>
-</form>
-
-
-</div>
-
 
 <script>
+  const form = document.getElementById("recipeForm");
+
+  form.addEventListener("submit", function(e) {
+    let valid = true;
+
+    // Reset all errors
+    document.querySelectorAll(".error-msg").forEach(el => el.textContent = "");
+
+    // Title validation
+    const title = document.getElementById("title").value.trim();
+    if (title.length < 3) {
+      document.getElementById("titleError").textContent = "Title must be at least 3 characters.";
+      valid = false;
+    }
+
+    // Description validation
+    const description = document.getElementById("description").value.trim();
+    if (description.length < 10) {
+      document.getElementById("descriptionError").textContent = "Description must be at least 10 characters.";
+      valid = false;
+    }
+
+    // Image validation
+    const fileInput = document.getElementById("image_file");
+    if (fileInput.files.length === 0) {
+      document.getElementById("imageError").textContent = "Please upload an image.";
+      valid = false;
+    } else {
+      const file = fileInput.files[0];
+      const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+      if (!allowedTypes.includes(file.type)) {
+        document.getElementById("imageError").textContent = "Only JPG, PNG, GIF, WEBP images are allowed.";
+        valid = false;
+      }
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit
+        document.getElementById("imageError").textContent = "File size must be less than 2MB.";
+        valid = false;
+      }
+    }
+
+    // Meal type validation (at least 1)
+    const meals = document.querySelectorAll("input[name='meal[]']:checked");
+    if (meals.length === 0) {
+      document.getElementById("mealError").textContent = "Select at least one meal type.";
+      valid = false;
+    }
+
+    // Time validation (must be number)
+    const time = document.getElementById("time").value.trim();
+    if (!/^\d+$/.test(time) || parseInt(time) <= 0) {
+      document.getElementById("timeError").textContent = "Please enter a valid time in minutes.";
+      valid = false;
+    }
+
+    // Ingredients validation
+    const ingredients = document.getElementById("ingredients").value.trim();
+    if (ingredients.length < 5) {
+      document.getElementById("ingredientsError").textContent = "Please enter valid ingredients.";
+      valid = false;
+    }
+
+    // Steps validation
+    const steps = document.getElementById("steps").value.trim();
+    if (steps.length < 5) {
+      document.getElementById("stepsError").textContent = "Please enter valid steps.";
+      valid = false;
+    }
+
+      // YouTube link validation (optional)
+const videoUrl = document.getElementById("video_url").value.trim();
+if (videoUrl.length > 0) {
+$ytPattern = '/^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|shorts\/)[A-Za-z0-9_-]{11}|youtu\.be\/[A-Za-z0-9_-]{11})([&?]\S*)?$/';
+
+  if (!ytPattern.test(videoUrl)) {
+    document.getElementById("videoError").textContent = "Please enter a valid YouTube URL.";
+    valid = false;
+  }
+}
+
+
+    if (!valid) e.preventDefault(); // stop submission
+  });
+
   function previewImage(event) {
     const file = event.target.files[0];
     if (file) {
@@ -218,11 +268,15 @@ input[type="file"] {
 
   function removeImage() {
     const fileInput = document.getElementById("image_file");
-    fileInput.value = ""; // Clear file input
+    fileInput.value = "";
     document.getElementById("image_preview").src = "";
     document.getElementById("preview_container").style.display = "none";
   }
-</script>
 
+
+ 
+
+
+</script>
 </body>
 </html>

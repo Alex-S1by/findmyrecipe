@@ -1,22 +1,32 @@
 <?php
 include "db/config.php";
 
-$sql = "SELECT * FROM recipes WHERE status = 'active' LIMIT 8";
+$sql = "SELECT * FROM recipes WHERE status = 'active'  ORDER BY created_at DESC   LIMIT 4";
 
 $result = mysqli_query($conn, $sql);
+
+
+
+$sql2 = "SELECT * 
+         FROM recipes 
+         WHERE status = 'active' 
+         ORDER BY views DESC  
+         LIMIT 4";
+$result2 = mysqli_query($conn, $sql2);
 ?>
 <style>
 /* Section Header */
 .section-header {
     text-align: center;
-    margin-bottom: 50px;
+    margin-bottom: 10px;
     padding: 40px 0;
 }
 
 .section-header h2 {
     font-size: 3rem;
     font-weight: 700;
-    color:  #023e1f;;
+    color: black;
+    ;
 
     margin-bottom: 15px;
 }
@@ -182,8 +192,95 @@ $result = mysqli_query($conn, $sql);
 <div class="container my-5">
     <!-- Section Header -->
     <div class="section-header">
-        <h2><i class="fas fa-star"></i> Featured Recipes</h2>
+        <h2><i class="fa-solid fa-arrow-trend-up"></i> Trending Recipes</h2>
         <p>Discover our most popular and delicious recipes</p>
+    </div>
+
+    <!-- Recipe Cards -->
+    <div class="row g-4">
+        <?php if (mysqli_num_rows($result2) > 0): ?>
+        <?php while ($row = mysqli_fetch_assoc($result2)): ?>
+        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+            <div class="card recipe-card h-100">
+                <a href="recipes/recipe.php?id=<?= $row['id'] ?>" class="card-link">
+                    <div class="card-img-container">
+                        <img src="<?= htmlspecialchars($row['image_url']) ?>" class="card-img-top"
+                            alt="<?= htmlspecialchars($row['title']) ?>" loading="lazy">
+
+
+                        <!-- Time Badge -->
+                        <span class="badge time-badge position-absolute top-0 end-0 m-3">
+                            <i class="fas fa-clock"></i>
+                            <?= htmlspecialchars($row['time']) ?> mins
+                        </span>
+
+
+                    </div>
+
+                    <div class="card-body">
+                        <div class="meal-category">
+                            <i class="fas fa-utensils"></i>
+                            <?= htmlspecialchars($row['dish']) ?>
+                        </div>
+
+                        <h5 class="card-title">
+                            <?= htmlspecialchars($row['title']) ?>
+                        </h5>
+
+                        <?php if (isset($row['description'])): ?>
+                        <p class="card-text text-muted" style="font-size: 0.9rem; line-height: 1.4;">
+                            <?= htmlspecialchars(substr($row['description'], 0, 80)) ?>...
+                        </p>
+                        <?php endif; ?>
+
+                        <div class="recipe-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-users"></i>
+                                <?= isset($row['servings']) ? htmlspecialchars($row['servings']) : '4' ?> servings
+                            </div>
+
+
+                        </div>
+                    </div>
+
+
+
+                </a>
+            </div>
+        </div>
+        <?php endwhile; ?>
+        <?php else: ?>
+        <!-- Empty State -->
+        <div class="col-12">
+            <div class="empty-state">
+                <i class="fas fa-utensils"></i>
+                <h3>No Recipes Found</h3>
+                <p>We couldn't find any recipes at the moment. Please check back later!</p>
+            </div>
+        </div>
+        <?php endif; ?>
+    <div class="text-center mt-5">
+    <a href="recipes/all_recipes.php?trending=1"
+        class="btn btn-lg px-4 py-2 rounded-pill shadow d-inline-flex align-items-center gap-2"
+        style="background: linear-gradient(135deg, #000000, #434343); color: #fff; border: none;">
+        Show Trending Recipes 
+        <i class="fa-solid fa-arrow-right"></i>
+    </a>
+</div>
+
+
+    </div>
+</div>
+
+
+
+
+<div class="container my-5">
+    <!-- Section Header -->
+    <div class="section-header">
+       <h2><i class="fas fa-clock"></i> Latest Recipes</h2>
+       <p>Discover our latest popular and delicious recipes</p>
+        
     </div>
 
     <!-- Recipe Cards -->
@@ -250,10 +347,13 @@ $result = mysqli_query($conn, $sql);
         </div>
         <?php endif; ?>
         <div class="text-center mt-5">
-          <a href="recipes/all_recipes.php" class="inline-flex items-center bg-black text-white text-lg px-5 py-2 rounded hover:bg-gray-800 transition">
-    <i class="fas fa-list mr-2"></i> Show All Recipes
-</a>
-
-        </div>
+       
+            <a href="recipes/all_recipes.php"
+        class="btn btn-lg px-4 py-2 rounded-pill shadow d-inline-flex align-items-center gap-2"
+        style="background: linear-gradient(135deg, #000000, #434343); color: #fff; border: none;">
+        Show All Recipes
+        <i class="fa-solid fa-arrow-right"></i>
+    </a>
+</div>
     </div>
 </div>

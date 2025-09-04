@@ -43,7 +43,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
        
         $time = trim($_POST['time']);
         $diets = isset($_POST['diet']) ? implode(',', $_POST['diet']) : '';
+        $video_url = trim($_POST['video_url']); // ✅ New field
          $name=$_SESSION['user'];
+
+
+
+function getYoutubeEmbedUrl($url) {
+    // Match both youtube.com and youtu.be links
+    if (preg_match('/(?:youtu\.be\/|v=|\/shorts\/)([A-Za-z0-9_-]{11})/', $url, $matches)) {
+        return "https://www.youtube.com/embed/" . $matches[1];
+    }
+    return null;
+}
+
+$video_url = trim($_POST['video_url']);
+$embed_url = null;
+
+if (!empty($video_url)) {
+    $embed_url = getYoutubeEmbedUrl($video_url);
+    if (!$embed_url) {
+        throw new Exception("Invalid YouTube URL");
+    }
+}
+
          
 $creator = $conn->prepare("SELECT * FROM user WHERE name = ?");
 $creator->bind_param("s", $name); // "s" for string
@@ -52,9 +74,9 @@ $creator->execute();
 $result = $creator->get_result();
 if ($result->num_rows > 0) {
     $user = $result->fetch_assoc();
-    $stmt = $conn->prepare("INSERT INTO recipes (title, description, image_url,creator, meal, time, diet,dish) 
-                                VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("ssssssss", $title, $description, $image_url, $user['id'], $meal, $time, $diets,$dish);
+    $stmt = $conn->prepare("INSERT INTO recipes (title, description, image_url,creator, meal, time, diet,dish,video_url) 
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)");
+        $stmt->bind_param("sssssssss", $title, $description, $image_url, $user['id'], $meal, $time, $diets,$dish,$embed_url);
         $stmt->execute();
         $recipe_id = $stmt->insert_id;
     }
@@ -130,7 +152,7 @@ if ($result->num_rows > 0) {
         </div>
         <script>
             setTimeout(() => {
-                window.location.href = 'insert.html';
+                window.location.href = '../profile';
             }, 3000);
         </script>
         ";

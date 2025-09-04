@@ -348,6 +348,29 @@ body{
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        .suggestions-box {
+  position: absolute;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  width: 100%;
+  z-index: 1000;
+  display: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.suggestions-box div {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.suggestions-box div:hover {
+  background: #f0f0f0;
+}
+
 </style>
 
 
@@ -374,6 +397,9 @@ body{
               <div class="ingredient-input">
                   <input type="text" placeholder="Type an ingredient and press Enter..." id="ingredientInput">
               </div>
+              <div id="suggestions" class="suggestions-box"></div>
+             
+
           </div>
 
           <!-- Right Section -->
@@ -444,6 +470,43 @@ body{
   const submitBtn = document.getElementById("submitBtn");
   let ingredients = [];
 
+
+  const suggestionsBox = document.getElementById("suggestions");
+
+input.addEventListener("input", function () {
+    const query = input.value.trim();
+    if (query.length > 0) {
+        fetch(`/new-mini-project/search/get_ingredients.php?q=` + encodeURIComponent(query))
+            .then(res => res.json())
+            .then(data => {
+                suggestionsBox.innerHTML = "";
+                if (data.length > 0) {
+                    data.forEach(item => {
+                        const div = document.createElement("div");
+                        div.textContent = item;
+                        div.onclick = () => {
+                            addIngredient(item);
+                            suggestionsBox.style.display = "none";
+                        };
+                        suggestionsBox.appendChild(div);
+                    });
+                    suggestionsBox.style.display = "block";
+                } else {
+                    suggestionsBox.style.display = "none";
+                }
+            });
+    } else {
+        suggestionsBox.style.display = "none";
+    }
+});
+
+// Hide dropdown when clicked outside
+document.addEventListener("click", (e) => {
+    if (!suggestionsBox.contains(e.target) && e.target !== input) {
+        suggestionsBox.style.display = "none";
+    }
+});
+
   // Hidden input to submit ingredients
   const hiddenField = document.createElement("input");
   hiddenField.type = "hidden";
@@ -456,6 +519,7 @@ body{
           ingredients.push(value);
           updateTags();
           input.value = '';
+           suggestionsBox.style.display = "none";
           
           // Add a little animation
           input.style.transform = 'scale(1.05)';
@@ -504,15 +568,19 @@ body{
           e.preventDefault();
           if (input.value.trim()) {
               addIngredient(input.value);
-          }
+            }
+            suggestionsBox.style.display = "none";
       }
   });
 
   input.addEventListener("blur", function() {
-      if (input.value.trim()) {
-          addIngredient(input.value);
-      }
-  });
+    setTimeout(() => {
+        if (input.value.trim() && suggestionsBox.style.display === "none") {
+            addIngredient(input.value);
+        }
+    }, 150); // small delay to let click event fire
+});
+
 
   clearAllBtn.addEventListener("click", e => {
       e.preventDefault();

@@ -57,6 +57,9 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 
 $recipe_id = (int) $_GET['id'];
 
+
+$conn->query("UPDATE recipes SET views = views + 1 WHERE id = " . intval($recipe_id));
+
 // Fetch recipe
 $recipe_stmt = $conn->prepare("SELECT * FROM recipes WHERE id = ?");
 $recipe_stmt->bind_param("i", $recipe_id);
@@ -286,6 +289,20 @@ if (mysqli_num_rows($fav_result) > 0) {
       <?php endwhile; ?>
     </ol>
   </div>
+
+
+ <?php if (!empty($recipe['video_url'])): ?>
+<div class="section">
+  <h4>Watch Video</h4>
+  <div class="ratio ratio-16x9">
+    <iframe 
+      src="<?= htmlspecialchars($recipe['video_url']) ?>" 
+      title="YouTube video"
+      allowfullscreen>
+    </iframe>
+  </div>
+</div>
+<?php endif; ?>
 
 <div class="section">
   <h4 id="comment-form">Add a Comment</h4>
