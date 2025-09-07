@@ -104,7 +104,7 @@
 
   <h2>🍲 Add a New Recipe</h2>
 
-  <form id="recipeForm" method="POST" action="insert.php" enctype="multipart/form-data">
+  <form id="recipeForm" method="POST" action="insert.php"  enctype="multipart/form-data">
     <label for="title">Recipe Title:</label>
     <input type="text" id="title" name="title" required>
     <div class="error-msg" id="titleError"></div>
@@ -149,6 +149,8 @@
       <label><input type="checkbox" name="diet[]" value="Nut-free"> Nut-free</label>
       <label><input type="checkbox" name="diet[]" value="Diabetes-friendly"> Diabetes-friendly</label>
     </div>
+    
+    <div class="error-msg" id="dietError"></div>
 
     <label for="ingredients">Ingredients (one per line):</label>
     <textarea id="ingredients" name="ingredients" required placeholder="1/2 Kg Beef (Sliced)...&#10;10 Shallots (Kunjulli)..."></textarea>
@@ -217,8 +219,13 @@
       document.getElementById("mealError").textContent = "Select at least one meal type.";
       valid = false;
     }
+     const diet = document.querySelectorAll("input[name='diet[]']:checked");
+    if (diet.length === 0) {
+      document.getElementById("dietError").textContent = "Select at least one diet type.";
+      valid = false;
+    }
 
-    // Time validation (must be number)
+    // Time validation
     const time = document.getElementById("time").value.trim();
     if (!/^\d+$/.test(time) || parseInt(time) <= 0) {
       document.getElementById("timeError").textContent = "Please enter a valid time in minutes.";
@@ -239,17 +246,15 @@
       valid = false;
     }
 
-      // YouTube link validation (optional)
-const videoUrl = document.getElementById("video_url").value.trim();
-if (videoUrl.length > 0) {
-$ytPattern = '/^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|shorts\/)[A-Za-z0-9_-]{11}|youtu\.be\/[A-Za-z0-9_-]{11})([&?]\S*)?$/';
-
-  if (!ytPattern.test(videoUrl)) {
-    document.getElementById("videoError").textContent = "Please enter a valid YouTube URL.";
-    valid = false;
-  }
-}
-
+    // ✅ Fixed YouTube link validation
+    const videoUrl = document.getElementById("video_url").value.trim();
+    if (videoUrl.length > 0) {
+      const ytPattern = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|shorts\/)[A-Za-z0-9_-]{11}|youtu\.be\/[A-Za-z0-9_-]{11})([&?]\S*)?$/;
+      if (!ytPattern.test(videoUrl)) {
+        document.getElementById("videoError").textContent = "Please enter a valid YouTube URL.";
+        valid = false;
+      }
+    }
 
     if (!valid) e.preventDefault(); // stop submission
   });
@@ -272,11 +277,7 @@ $ytPattern = '/^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|shorts\/)[A-Za-z
     document.getElementById("image_preview").src = "";
     document.getElementById("preview_container").style.display = "none";
   }
-
-
- 
-
-
 </script>
+
 </body>
 </html>

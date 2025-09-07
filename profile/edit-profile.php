@@ -104,17 +104,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $current_password = $_POST["current_password"] ?? '';
     $new_password = $_POST["new_password"] ?? '';
     $new_confirm = $_POST["confirm_password"] ?? '';
+
 if (isset($_POST['pic-change'])) {
-    if (isset($_FILES['new_profile_pic']) && $_FILES['new_profile_pic']['error'] === UPLOAD_ERR_OK) {
-        $file = $_FILES['new_profile_pic'];
-        $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+    if (!isset($_FILES['new_profile_pic']) || $_FILES['new_profile_pic']['error'] !== UPLOAD_ERR_OK) {
+        die("❌ Upload error: " . ($_FILES['new_profile_pic']['error'] ?? 'No file sent.'));
+    }
 
-        $uploadDir = "../uploads/users/";
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
-        }
+    $file = $_FILES['new_profile_pic'];
+    $ext  = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
-        // 1. Fetch previous profile_pic path from database
+    if (!in_array($ext, $allowed)) {
+        die("❌ Invalid file type: $ext");
+    }
+    if ($file['size'] > 2 * 1024 * 1024) {
+        die("❌ File too large. Max 2MB allowed.");
+    }
+
+    $uploadDir   = __DIR__ . "/../uploads/users/";
+    if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+    // Use unique name to avoid caching issues
+    $newFilename = "user_" . $user_id . "_" . time() . "." . $ext;
+    $uploadPath  = $uploadDir . $newFilename;
+    $relativePath = "uploads/users/" . $newFilename;
+
+    if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+        // Delete old image if exists
         $stmt_old = mysqli_prepare($conn, "SELECT profile_pic FROM user WHERE id = ?");
         mysqli_stmt_bind_param($stmt_old, "i", $user_id);
         mysqli_stmt_execute($stmt_old);
@@ -122,35 +138,23 @@ if (isset($_POST['pic-change'])) {
         mysqli_stmt_fetch($stmt_old);
         mysqli_stmt_close($stmt_old);
 
-        // 2. Generate new file path
-        $newFilename = "user_" . $user_id . "." . $ext;
-        $relativePath = "uploads/users/" . $newFilename;
-        $uploadPath = $uploadDir . $newFilename;
-
-        // 3. Move new file
-        if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
-            // 4. Delete old file (if not default and exists)
-            if (!empty($old_profile_pic) && file_exists("../" . $old_profile_pic) && $old_profile_pic !== "assets/image.png") {
-                unlink("../" . $old_profile_pic);
-            }
-
-            // 5. Update DB
-            $stmt = mysqli_prepare($conn, "UPDATE user SET profile_pic = ? WHERE id = ?");
-            mysqli_stmt_bind_param($stmt, "si", $relativePath, $user_id);
-
-            if (mysqli_stmt_execute($stmt)) {
-                header("Location: ./");
-                exit();
-            } else {
-                $error = "Failed to update profile picture in database.";
-            }
-        } else {
-            $error = "Failed to upload image.";
+        if (!empty($old_profile_pic) && $old_profile_pic !== "assets/image.png") {
+            $oldPath = __DIR__ . "/../" . $old_profile_pic;
+            if (file_exists($oldPath)) unlink($oldPath);
         }
+
+        // Update DB
+        $stmt = mysqli_prepare($conn, "UPDATE user SET profile_pic = ? WHERE id = ?");
+        mysqli_stmt_bind_param($stmt, "si", $relativePath, $user_id);
+        mysqli_stmt_execute($stmt);
+
+        header("Location: ./?section=image&v=" . time()); // cache bust
+        exit;
     } else {
-        $error = "No image selected or upload error.";
+        die("❌ Failed to move file.");
     }
 }
+
 
 
  if (isset($_POST['name-change'])) {
@@ -493,7 +497,7 @@ if (isset($_POST['send_otp'])) {
 
             <h2>Edit Profile</h2>
         </div>
-        <form method="POST"  enctype="multipart/form-data"  action="">
+        <form method="POST"  enctype="multipart/form-data" action=""  >
 
             <!-- Image Upload -->
             <?php if ($section === 'image'): ?>

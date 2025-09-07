@@ -22,35 +22,27 @@ if (!isset($_SESSION['user'])) {
     exit();
 }
 
-// Pagination
-$recipesPerPage = 9;
-$page = isset($_GET['page']) && is_numeric($_GET['page']) ? intval($_GET['page']) : 1;
-$offset = ($page - 1) * $recipesPerPage;
-
 // Check if trending
 $isTrending = isset($_GET['trending']) && $_GET['trending'] == 1;
 
-// Count total recipes
-$totalQuery = $isTrending
-    ? mysqli_query($conn, "SELECT COUNT(*) AS total FROM recipes WHERE status='active' AND views > 0")
-    : mysqli_query($conn, "SELECT COUNT(*) AS total FROM recipes WHERE status='active'");
-$totalRow = mysqli_fetch_assoc($totalQuery);
-$totalRecipes = $totalRow['total'];
-$totalPages = ceil($totalRecipes / $recipesPerPage);
-
-// Fetch recipes
+// Fetch all recipes
 $sql = $isTrending
-    ? "SELECT id, title, image_url, meal, time, created_at, views 
+    ? "SELECT id, title, image_url, meal, time, diet, created_at, views 
        FROM recipes 
        WHERE status = 'active' AND views > 0
-       ORDER BY views DESC, created_at DESC
-       LIMIT $offset, $recipesPerPage"
-    : "SELECT id, title, image_url, meal, time, created_at, views
+       ORDER BY views DESC, created_at DESC"
+    : "SELECT id, title, image_url, meal, time, diet, created_at, views
        FROM recipes 
        WHERE status='active'
-       ORDER BY created_at DESC
-       LIMIT $offset, $recipesPerPage";
+       ORDER BY created_at DESC";
+
 $result = mysqli_query($conn, $sql);
+
+// Build array for PHP rendering and JS
+$allRecipes = [];
+while($row = mysqli_fetch_assoc($result)){
+    $allRecipes[] = $row;
+}
 ?>
 
 <!DOCTYPE html>
@@ -63,7 +55,6 @@ $result = mysqli_query($conn, $sql);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         body { background-color: #f8f9fa; font-family: 'Segoe UI', sans-serif; }
-
         .section-header { margin-bottom: 30px; }
         .section-header h2 { font-size: 2rem; font-weight: 700; color: #d10031; margin: 0; }
 
@@ -116,26 +107,27 @@ $result = mysqli_query($conn, $sql);
     <h5>Filters</h5>
     <div class="filter-section">
         <label class="form-label">Search</label>
-        <input type="text" placeholder="Search recipes...">
+        <input type="text" id="searchInput" placeholder="Search recipes..." >
     </div>
     <div class="filter-section">
         <label class="form-label">Meal Type</label><br>
-        <input type="checkbox" id="breakfast"> <label for="breakfast">Breakfast</label><br>
-        <input type="checkbox" id="lunch"> <label for="lunch">Lunch</label><br>
-        <input type="checkbox" id="dinner"> <label for="dinner">Dinner</label>
+        <input type="checkbox" name="meal[]" value="Breakfast" id="breakfast"> <label for="breakfast">Breakfast</label><br>
+        <input type="checkbox" name="meal[]" value="Lunch" id="lunch" > <label for="lunch">Lunch</label><br>
+        <input type="checkbox" name="meal[]" value="Dinner" id="dinner"> <label for="dinner">Dinner</label>
     </div>
     <div class="filter-section">
         <label class="form-label">Diet</label><br>
-        <input type="checkbox" id="veg"> <label for="veg">Vegetarian</label><br>
-        <input type="checkbox" id="nonveg"> <label for="nonveg">Non-Veg</label>
+        <input type="checkbox" name="diet[]" value="Vegetarian" id="veg" > <label for="veg">Vegetarian</label><br>
+        <input type="checkbox" name="diet[]" value="Non-Vegetarian" id="nonveg"> <label for="nonveg">Non-Veg</label>
     </div>
     <div class="filter-section">
         <label class="form-label">Cooking Time</label><br>
-        <input type="radio" name="time" id="15"> <label for="15">Under 15 mins</label><br>
-        <input type="radio" name="time" id="30"> <label for="30">Under 30 mins</label><br>
-        <input type="radio" name="time" id="60"> <label for="60">Under 1 hour</label>
+        <input type="radio" name="time" value="15" id="time15" > <label for="time15">Under 15 mins</label><br>
+        <input type="radio" name="time" value="30" id="time30" > <label for="time30">Under 30 mins</label><br>
+        <input type="radio" name="time" value="60" id="time60" > <label for="time60">Under 1 hour</label><br>
+        <input type="radio" name="time" value="0" id="timeAny" checked > <label for="timeAny">Any</label>
     </div>
-    <button class="btn btn-danger w-100">Apply Filters</button>
+    <button class="btn btn-danger w-100" onclick="applyFilters()">Apply Filters</button>
 </div>
 
 <div class="container py-5 main-class">
@@ -148,58 +140,16 @@ $result = mysqli_query($conn, $sql);
         <?php endif; ?>
     </div>
 
-    <div class="row g-4">
-        <?php if(mysqli_num_rows($result) > 0): ?>
-            <?php while($row = mysqli_fetch_assoc($result)): ?>
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="card recipe-card h-100">
-                        <a href="./recipe.php?id=<?= $row['id'] ?>" class="text-decoration-none text-dark">
-                            <div class="card-img-container">
-                                <img src="../<?= htmlspecialchars($row['image_url']) ?>" class="card-img-top" alt="<?= htmlspecialchars($row['title']) ?>">
-                                <span class="badge time-badge position-absolute top-0 end-0 m-2">
-                                    <i class="fas fa-clock"></i> <?= htmlspecialchars($row['time']) ?> mins
-                                </span>
-                            </div>
-                            <div class="card-body">
-                                <div class="meal-category">
-                                    <i class="fas fa-utensils"></i> <?= htmlspecialchars($row['meal']) ?>
-                                </div>
-                                <h5 class="card-title"><?= htmlspecialchars($row['title']) ?></h5>
-                                <div class="recipe-meta">
-                                    <div class="meta-item"><i class="fas fa-users"></i> 4 servings</div>
-                                    <div class="meta-item"><i class="fas fa-calendar-alt"></i> <?= date("d M Y", strtotime($row['created_at'])) ?></div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            <?php endwhile; ?>
-        <?php else: ?>
-            <div class="col-12 text-center text-muted"><p>No recipes found.</p></div>
-        <?php endif; ?>
-    </div>
-
-    <!-- Pagination -->
-    <?php if($totalPages > 1): ?>
-        <nav>
-            <ul class="pagination justify-content-center mt-4">
-                <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
-                    <a class="page-link" href="?page=<?= $page-1 ?><?= $isTrending ? '&trending=1' : '' ?>">Previous</a>
-                </li>
-                <?php for($i=1; $i<=$totalPages; $i++): ?>
-                    <li class="page-item <?= $i==$page ? 'active' : '' ?>">
-                        <a class="page-link" href="?page=<?= $i ?><?= $isTrending ? '&trending=1' : '' ?>"><?= $i ?></a>
-                    </li>
-                <?php endfor; ?>
-                <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
-                    <a class="page-link" href="?page=<?= $page+1 ?><?= $isTrending ? '&trending=1' : '' ?>">Next</a>
-                </li>
-            </ul>
-        </nav>
-    <?php endif; ?>
+    <div id="recipeGrid" class="row g-4"></div>
+    <div id="pagination" class="d-flex justify-content-center mt-4"></div>
 </div>
 
 <script>
+    const searchinpt=document.getElementById('searchInput');
+const recipes = <?= json_encode($allRecipes) ?>;
+let currentPage = 1;
+const recipesPerPage = 9;
+
 function toggleFilterSidebar(){
     const sidebar = document.getElementById("filterSidebar");
     const overlay = document.getElementById("filterOverlay");
@@ -207,11 +157,124 @@ function toggleFilterSidebar(){
     overlay.classList.toggle("show");
     document.body.style.overflow = sidebar.classList.contains("open") ? "hidden" : "auto";
 }
+searchinpt.addEventListener("keydown", function(e){
+      
+ if(e.key === "Enter" ){
+    
+
+       applyFilters();
+    }
+
+});
 document.addEventListener("keydown", function(e){
     if(e.key === "Escape" && document.getElementById("filterSidebar").classList.contains("open")){
         toggleFilterSidebar();
     }
 });
+
+function renderRecipes(filtered) {
+    const container = document.getElementById('recipeGrid');
+    container.innerHTML = '';
+
+    if(filtered.length === 0){
+        container.innerHTML = `<div class="col-12 text-center text-muted"><p>No recipes found.</p></div>`;
+        return;
+    }
+
+    filtered.forEach(row => {
+        container.innerHTML += `
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card recipe-card h-100">
+                <a href="./recipe.php?id=${row.id}" class="text-decoration-none text-dark">
+                    <div class="card-img-container">
+                        <img src="../${row.image_url}" class="card-img-top" alt="${row.title}">
+                        <span class="badge time-badge position-absolute top-0 end-0 m-2">
+                            <i class="fas fa-clock"></i> ${row.time} mins
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="meal-category">
+                            <i class="fas fa-utensils"></i> ${row.meal}
+                        </div>
+                        <h5 class="card-title">${row.title}</h5>
+                        <div class="recipe-meta">
+                            <div class="meta-item"><i class="fas fa-users"></i> 4 servings</div>
+                            <div class="meta-item"><i class="fas fa-calendar-alt"></i> ${new Date(row.created_at).toLocaleDateString()}</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>`;
+    });
+}
+
+// Pagination rendering
+function renderRecipesWithPagination(filtered) {
+    const totalPages = Math.ceil(filtered.length / recipesPerPage);
+    if(currentPage > totalPages) currentPage = totalPages || 1;
+
+    const start = (currentPage - 1) * recipesPerPage;
+    const end = start + recipesPerPage;
+    const paginatedRecipes = filtered.slice(start, end);
+
+    renderRecipes(paginatedRecipes);
+    renderPagination(totalPages, filtered);
+}
+
+function renderPagination(totalPages, filtered) {
+    const container = document.getElementById('pagination');
+    container.innerHTML = '';
+    if(totalPages <= 1) return;
+
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'btn btn-outline-danger me-2';
+    prevBtn.textContent = 'Prev';
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.onclick = () => { currentPage--; renderRecipesWithPagination(filtered); };
+    container.appendChild(prevBtn);
+
+    for(let i=1; i<=totalPages; i++){
+        const btn = document.createElement('button');
+        btn.className = `btn me-2 ${i === currentPage ? 'btn-danger' : 'btn-outline-danger'}`;
+        btn.textContent = i;
+        btn.onclick = () => { currentPage = i; renderRecipesWithPagination(filtered); };
+        container.appendChild(btn);
+    }
+
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'btn btn-outline-danger';
+    nextBtn.textContent = 'Next';
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.onclick = () => { currentPage++; renderRecipesWithPagination(filtered); };
+    container.appendChild(nextBtn);
+}
+
+// Filtering
+function applyFilters() {
+     toggleFilterSidebar();
+   
+    const searchText = document.getElementById('searchInput').value.toLowerCase();
+    const selectedMeals = Array.from(document.querySelectorAll('input[name="meal[]"]:checked')).map(el => el.value);
+    const selectedDiets = Array.from(document.querySelectorAll('input[name="diet[]"]:checked')).map(el => el.value);
+    const selectedTime = parseInt(document.querySelector('input[name="time"]:checked')?.value || 0);
+
+    const filtered = recipes.filter(row => {
+        if(selectedMeals.length) {
+            const rowMeals = row.meal.split(',').map(m => m.trim());
+            if(!selectedMeals.some(meal => rowMeals.includes(meal))) return false;
+        }
+        if(selectedDiets.length && !selectedDiets.includes(row.diet)) return false;
+        if(selectedTime && row.time > selectedTime) return false;
+        if(searchText && !row.title.toLowerCase().includes(searchText)) return false;
+        return true;
+    });
+
+    currentPage = 1; // reset page
+    renderRecipesWithPagination(filtered);
+}
+
+// Initial render
+renderRecipesWithPagination(recipes);
 </script>
 
 </body>
