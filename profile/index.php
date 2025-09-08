@@ -38,6 +38,8 @@ while ($row = mysqli_fetch_assoc($recipes_result)) {
   <meta charset="UTF-8" />
   <title><?= htmlspecialchars($user['name']) ?> | Profile</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <style>
     * {
       box-sizing: border-box;
@@ -324,10 +326,13 @@ while ($row = mysqli_fetch_assoc($recipes_result)) {
             <div class="recipe-actions">
               <a href="../recipes/recipe.php?id=<?= $recipe['id'] ?>" class="btn btn-blue"><i class="fas fa-eye"></i> View</a>
               <a href="../recipes/edit_recipe.php?id=<?= $recipe['id'] ?>" class="btn btn-yellow"><i class="fas fa-edit"></i> Edit</a>
-              <form method="POST" action="../recipes/delete_recipe.php" onsubmit="return confirm('Are you sure you want to delete this recipe?');">
-                <input type="hidden" name="recipe_id" value="<?= $recipe['id'] ?>">
-                <button type="submit" class="btn btn-red"><i class="fas fa-trash"></i> Delete</button>
-              </form>
+             <form method="POST" action="../recipes/delete_recipe.php" class="delete-form">
+  <input type="hidden" name="recipe_id" value="<?= $recipe['id'] ?>">
+  <button type="button" class="btn btn-red delete-btn">
+    <i class="fas fa-trash"></i> Delete
+  </button>
+</form>
+
             </div>
           </div>
         </div>
@@ -351,6 +356,26 @@ while ($row = mysqli_fetch_assoc($recipes_result)) {
       dropdown.style.display = 'none';
     }
   });
+
+  document.querySelectorAll(".delete-btn").forEach(btn => {
+  btn.addEventListener("click", function(e) {
+    const form = this.closest("form");
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This recipe will be permanently deleted!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        form.submit();
+      }
+    });
+  });
+});
 </script>
 
 </body>

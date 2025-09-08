@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $video_url   = trim($_POST['video_url'] ?? '');
         $ingredients = trim($_POST['ingredients'] ?? '');
         $steps       = trim($_POST['steps'] ?? '');
-        $name        = $_SESSION['user'];
+        $id        = $_SESSION['user_id'];
 
         // ✅ Backend validation
         if ($title === '' || strlen($title) < 3) throw new Exception("Recipe title is required (min 3 chars).");
@@ -71,8 +71,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // ✅ Find user id
-        $creator = $conn->prepare("SELECT * FROM user WHERE name = ?");
-        $creator->bind_param("s", $name);
+        $creator = $conn->prepare("SELECT * FROM user WHERE id = ?");
+        $creator->bind_param("s", $id);
         $creator->execute();
         $result = $creator->get_result();
 
